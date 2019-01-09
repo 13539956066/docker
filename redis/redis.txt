@@ -1,0 +1,56 @@
+
+# 创建 宿主机文件
+# /home/redis/conf
+# /home/redis/data
+
+# 从光网下载redis模板
+https://raw.githubusercontent.com/antirez/redis/4.0/redis.conf -O conf/redis.conf
+
+daemonize no #用守护线程的方式启动
+requirepass yourpassword #给redis设置密码
+bind 192.168.1.1 #注释掉这部分，这是限制redis只能本地访问
+appendonly yes #redis持久化
+
+
+ 
+# 拉取 redis 
+docker pull redis:4
+
+ 
+
+3.启动redis
+ 
+[root@VM_0_9_centos ~]# docker run -p 6379:6379 --name redis -v /home/redis/conf/redis.conf:/etc/redis/redis.conf -v /home/redis/data:/data -d  redis:4 redis-server /etc/redis/redis.conf --appendonly yes 
+33fdbca88c7e4e2e6a0528e7c806706840f2dc267d179a5a75093f43c8175b2d
+[root@VM_0_9_centos ~]# docker images;
+REPOSITORY                        TAG                 IMAGE ID            CREATED             SIZE
+centos7_jdk8_tomcat8              latest              5baddf3d5bf3        4 hours ago         612 MB
+local_repos/centos_jdk8_tomcat8   0.0.1               be4f587b9c3e        45 hours ago        612 MB
+docker.io/redis                   4                   b00f982f9bf7        9 days ago          83.4 MB
+docker.io/centos                  latest              1e1148e4cc2c        2 weeks ago         202 MB
+docker.io/mysql                   5.7.21              5195076672a7        9 months ago        371 MB
+[root@VM_0_9_centos ~]# docker ps -a
+CONTAINER ID        IMAGE                         COMMAND                  CREATED             STATUS              PORTS                    NAMES
+33fdbca88c7e        redis:4                       "docker-entrypoint..."   12 seconds ago      Up 11 seconds       0.0.0.0:6379->6379/tcp   redis
+39db7ccd8601        centos7_jdk8_tomcat8:latest   "/usr/tomcat8/bin/..."   4 hours ago         Up 3 hours          0.0.0.0:8080->8080/tcp   zhuotomcat8
+0a715aa5ab31        be4f587b9c3e                  "/opt/tomcat8/bin/..."   4 hours ago         Created             0.0.0.0:8080->8080/tcp   kickass_bassi
+4270cb4902a3        mysql:5.7.21                  "docker-entrypoint..."   2 days ago          Up 3 hours          0.0.0.0:3307->3306/tcp   slavem
+8f060d70d291        mysql:5.7.21                  "docker-entrypoint..."   2 days ago          Up 3 hours          0.0.0.0:3306->3306/tcp   master
+[root@VM_0_9_centos ~]# 
+
+
+-p 6379:6379:把容器内的6379端口映射到宿主机6379端口 
+-v /root/redis/redis.conf:/etc/redis/redis.conf：把宿主机配置好的redis.conf放到容器内的这个位置中 
+-v /root/redis/data:/data：把redis持久化的数据在宿主机内显示，做数据备份 
+redis-server /etc/redis/redis.conf：这个是关键配置，让redis不是无配置启动，而是按照这个redis.conf的配置启动 
+–appendonly yes：redis启动后数据持久化
+ 
+
+
+docker start 90f10b9f4095
+
+
+[root@VM_0_9_centos ~]# docker exec -it 33fdbca88c7e redis-cli
+ 
+[root@VM_0_9_centos ~]# 
+ 
